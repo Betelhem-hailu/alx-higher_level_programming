@@ -1,5 +1,5 @@
 #!/usr/bin/node
-function add (x, y)
-{
-    return x+y;
-}
+
+exports.add = function (a, b) {
+  return a + b;
+};
