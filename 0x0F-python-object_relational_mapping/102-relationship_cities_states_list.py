@@ -1,26 +1,24 @@
 #!/usr/bin/python3
-""" List all city objects using sqlalchemy relationship """
+"""
+Using the SQLAlchemy module, list all City objects and their corresponding
+State name from the database hbtn_0e_101_usa
+"""
 
+import sys
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from relationship_state import Base, State
 from relationship_city import City
-from sqlalchemy.orm.session import sessionmaker, Session
-from sqlalchemy import create_engine
-from sys import argv
 
-
-if __name__ == '__main__':
-
-    username = argv[1]
-    password = argv[2]
-    db_name = argv[3]
-
-    engine = create_engine('mysql+mysqldb://{}:{}@localhost:3306/{}'
-                           .format(username, password, db_name))
-
-    Base.metadata.create_all(engine)
-
+if __name__ == "__main__":
+    engine = create_engine('mysql+mysqldb://{}:{}@localhost/{}'.
+                           format(sys.argv[1], sys.argv[2], sys.argv[3]),
+                           pool_pre_ping=True)
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    for city in session.query(City).order_by(City.id):
-        print('{}: {} -> {}'.format(city.id, city.name, city.state.name))
+    for row in session.query(City)\
+                      .join(State)\
+                      .filter(State.id == City.state_id)\
+                      .order_by(City.id):
+        print("{}: {} -> {}".format(row.id, row.name, row.state.name))
